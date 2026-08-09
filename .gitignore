@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+
+.vscode/
+
+# 로컬 환경/비밀값
+.env
+
+# 모델 가중치는 git 에 올리지 않음 (서버 영속 경로/볼륨으로 관리)
+models/

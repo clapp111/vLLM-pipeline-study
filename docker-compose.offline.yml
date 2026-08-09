@@ -1,0 +1,16 @@
+# 오프라인/제한망(교내 AI 서버) 오버레이.
+# 사용법:
+#   1) scripts/download_model.sh 로 모델을 미리 받아 ${MODELS_DIR} 에 배치
+#   2) .env 에 VLLM_MODEL=/models/<name>, MODELS_DIR=<host 경로> 설정
+#   3) docker compose -f docker-compose.yml -f docker-compose.offline.yml up -d
+#
+# base compose 와 병합되어 vllm 서비스에 models 마운트 + HF 오프라인 env 를 추가한다.
+# (모델은 CI 로 매번 보내지 않고 서버의 영속 경로 ${MODELS_DIR} 에 한 번만 심어둔다.)
+services:
+  vllm:
+    volumes:
+      - ${MODELS_DIR:-./models}:/models:ro
+    environment:
+      # HF 로 나가는 시도를 원천 차단 (제한망에서 타임아웃/실패 방지)
+      - HF_HUB_OFFLINE=1
+      - TRANSFORMERS_OFFLINE=1

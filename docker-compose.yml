@@ -1,0 +1,50 @@
+services:
+  vllm:
+    image: ${VLLM_IMAGE:-vllm/vllm-openai:latest}
+    container_name: vllm
+    # 모델/메모리 예산은 .env 로 조정 (기본값은 2~3GB 예산 기준)
+    command: >
+      --model ${VLLM_MODEL:-Qwen/Qwen3-0.6B}
+      --served-model-name ${VLLM_SERVED_NAME:-news-classifier}
+      ${VLLM_QUANTIZATION:+--quantization ${VLLM_QUANTIZATION}}
+      --dtype half
+      --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.5}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-4096}
+      ${VLLM_EXTRA_ARGS:-}
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+    ports:
+      - "8000:8000"
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 40
+      start_period: 180s
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: litellm
+    depends_on:
+      vllm:
+        condition: service_healthy
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    volumes:
+      - ./infra/litellm/config.yaml:/app/config.yaml:ro
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-1234}
+    ports:
+      - "4000:4000"
+
+volumes:
+  hf-cache:
