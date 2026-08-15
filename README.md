@@ -7,6 +7,8 @@ vLLM·litellm 은 Docker 로, FastAPI 앱은 호스트에서 실행한다.
 
 ## Architecture
 
+![Pipeline Architecture](images/pipeline.svg)
+
 ```
 클라이언트
   │  POST /v1/classify  {title, content?}
