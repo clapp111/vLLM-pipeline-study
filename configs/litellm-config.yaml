@@ -1,0 +1,15 @@
+# litellm proxy 설정
+# 클라이언트는 model="dongmin-study"(공개 별칭=model_name)로 호출 
+# → litellm이 vllm-dongmin:8000/v1/qwen3-4b-awq 로 변환하여 호출
+model_list:
+  - model_name: dongmin-study
+    litellm_params:
+      model: openai/qwen3-4b-awq
+      api_base: http://vllm-dongmin:8000/v1
+      api_key: "dummy"   # vLLM 은 키 검증 안 함(placeholder)
+
+litellm_settings:
+  drop_params: true      # 백엔드가 모르는 파라미터는 무시
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

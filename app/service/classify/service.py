@@ -2,19 +2,19 @@
 import re
 
 from app.llm import client
-from app.service.classify.prompts.classify_prompt import LABELS, build_messages
+from app.service.classify.prompts.classify_prompt import LABELS, Label, build_messages
 
 # Qwen3 가 추론 모드로 응답할 경우 <think>...</think> 블록 제거용
 _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
 
 
-async def classify(text: str) -> str:
-    messages = build_messages(text)
+async def classify(title: str, content: str | None = None) -> Label:
+    messages = build_messages(title, content)
     raw = await client.complete(messages, guided_choice=LABELS)
     return _parse_label(raw)
 
 
-def _parse_label(raw: str) -> str:
+def _parse_label(raw: str) -> Label:
     cleaned = _THINK_RE.sub("", raw).strip()
     # 정확 일치 우선
     if cleaned in LABELS:

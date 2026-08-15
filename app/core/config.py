@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # litellm 마스터 키 (.env 의 LITELLM_MASTER_KEY 와 동일 값)
     llm_api_key: str = "sk-1234"
     # litellm config.yaml 의 model_name 별칭
-    llm_model: str = "news-classifier"
+    llm_model: str = "dongmin-study"
     # 호출 타임아웃(초)
     llm_timeout: float = 30.0
 

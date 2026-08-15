@@ -1,7 +1,9 @@
 """뉴스 주제 분류 프롬프트 및 라벨 집합."""
+from typing import Literal, get_args
 
-# 고정 라벨 5종
-LABELS = ["정치", "경제", "사회", "IT과학", "스포츠"]
+# 고정 라벨: 5개 주제 + 해당 없음
+Label = Literal["정치", "경제", "사회", "IT과학", "스포츠", "없음"]
+LABELS: list[str] = list(get_args(Label))
 
 SYSTEM_PROMPT = """
 너는 한국어 뉴스 기사의 주제를 분류하는 전문 분류기다.
@@ -39,6 +41,11 @@ IT과학:
 - 선수, 감독, 구단, 대회, 경기 결과 및 기록
 - 선수 이적, 부상, 계약 등 스포츠 활동과 직접 관련된 내용
 
+없음:
+- 위 5개 주제 어디에도 해당하지 않는 경우
+- 분류할 만한 유의미한 내용이 없거나, 쓸 만한 데이터가 아닌 경우
+  (예: 광고·홍보성 문구, 내용 없음, 깨진 텍스트)
+
 
 [분류 원칙]
 
@@ -61,8 +68,10 @@ IT과학:
 
 4. 제목과 본문이 함께 주어진 경우 본문의 전체 맥락을 우선하되,
    제목이 나타내는 핵심 사건도 참고하라.
+   본문이 없이 제목만 주어진 경우 제목만으로 판단하라.
 
-5. 판단이 애매하더라도 반드시 가장 가까운 라벨 하나를 선택하라.
+5. 5개 주제 중 하나에 해당하면, 애매하더라도 가장 가까운 라벨 하나를 선택하라.
+   어느 주제에도 해당하지 않거나 분류할 유의미한 내용이 없으면 '없음'을 선택하라.
    복수 라벨, 설명, 이유, 문장, 특수기호를 출력하지 마라.
 
 [출력 형식]
@@ -74,10 +83,13 @@ IT과학:
 사회
 IT과학
 스포츠
+없음
 """.strip()
 
-def build_messages(text: str) -> list[dict]:
+def build_messages(title: str, content: str | None = None) -> list[dict]:
+    body = content.strip() if content else ""
+    user = f"제목: {title.strip()}\n본문: {body}" if body else f"제목: {title.strip()}"
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": text.strip()},
+        {"role": "user", "content": user},
     ]
