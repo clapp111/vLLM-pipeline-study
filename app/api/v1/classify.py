@@ -1,4 +1,5 @@
 """분류 API 라우터."""
+
 from fastapi import APIRouter, HTTPException
 
 from app.service.classify import service

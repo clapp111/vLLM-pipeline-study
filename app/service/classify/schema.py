@@ -1,4 +1,5 @@
 """분류 API 요청/응답 스키마."""
+
 from pydantic import BaseModel, Field
 
 from app.service.classify.prompts.classify_prompt import Label

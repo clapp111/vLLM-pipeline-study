@@ -1,4 +1,5 @@
 """뉴스 주제 분류 프롬프트 및 라벨 집합."""
+
 from typing import Literal, get_args
 
 # 고정 라벨: 5개 주제 + 해당 없음
@@ -85,6 +86,7 @@ IT과학
 스포츠
 없음
 """.strip()
+
 
 def build_messages(title: str, content: str | None = None) -> list[dict]:
     body = content.strip() if content else ""

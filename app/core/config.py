@@ -1,4 +1,5 @@
 """앱 전역 설정 (.env 로딩)."""
+
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
